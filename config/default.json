@@ -1,6 +1,6 @@
 {
   "db": {
-    "url": "mongodb://localhost:27017/chat-react-native",
+    "url": "mongodb+srv://mukul:L0ciDVRPResAbYcx@cluster0-iidze.mongodb.net/chat-react-native?retryWrites=true&w=majority",
     "options": {
       "keepAlive": 1000,
       "useNewUrlParser": true,
