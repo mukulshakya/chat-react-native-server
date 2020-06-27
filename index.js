@@ -12,6 +12,8 @@ const generateJwtToken = require("./util/generateJwtToken");
 const User = require("./models/user");
 const auth = require("./middleware/auth");
 
+const port = process.env.PORT || 8000;
+
 app.use(require("cors")());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -96,6 +98,6 @@ app.use(async (error, req, res, next) => {
   return res.error(error);
 });
 
-server.listen(8000, () => console.log("Server running on 8000"));
+server.listen(port, () => console.log("Server running on " + port));
 
 require("./models")(config);
