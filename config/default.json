@@ -1,0 +1,21 @@
+{
+  "db": {
+    "url": "mongodb://localhost:27017/chat-react-native",
+    "options": {
+      "keepAlive": 1000,
+      "useNewUrlParser": true,
+      "useCreateIndex": true,
+      "useFindAndModify": false,
+      "useUnifiedTopology": true
+    }
+  },
+  "jwt": {
+    "secret": "dsjhdsfvjadsuwefdutxsutfgvg536echgas7547ew5cdtd",
+    "options": {
+      "algorithm": "HS256",
+      "expiresIn": 31556926,
+      "issuer": "accounts.examplesoft.com",
+      "audience": "yoursite.net"
+    }
+  }
+}

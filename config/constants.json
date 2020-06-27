@@ -1,0 +1,6 @@
+{
+  "payloads": {
+    "login": ["email", "password"],
+    "register": ["username", "email", "password"]
+  }
+}
