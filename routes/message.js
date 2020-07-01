@@ -6,57 +6,57 @@ const {
 const Message = require("../models/message");
 const auth = require("../middleware/auth");
 
-router.route("/:receiverId").get(auth, async (req, res) => {
-  try {
-    const { page } = req.query;
-    const receiverId = ObjectId(req.params.receiverId);
-    const senderId = ObjectId(req.user.id);
+// router.route("/:receiverId").get(auth, async (req, res) => {
+//   try {
+//     const { page } = req.query;
+//     const receiverId = ObjectId(req.params.receiverId);
+//     const senderId = ObjectId(req.user.id);
 
-    const messages = await Message.aggregate([
-      {
-        $match: {
-          $or: [
-            { receiverId: receiverId, senderId: senderId },
-            { receiverId: senderId, senderId: receiverId },
-          ],
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "senderId",
-          foreignField: "_id",
-          as: "sender",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "receiverId",
-          foreignField: "_id",
-          as: "receiver",
-        },
-      },
-      { $unwind: "$sender" },
-      { $unwind: "$receiver" },
-      {
-        $project: {
-          message: 1,
-          createdAt: 1,
-          sender: { _id: 1, firstName: 1, lastName: 1, email: 1, mobile: 1 },
-          receiver: { _id: 1, firstName: 1, lastName: 1, email: 1, mobile: 1 },
-        },
-      },
-      { $sort: { createdAt: -1 } },
-      { $skip: page ? parseInt(page) - 1 * 100 : 0 },
-      { $limit: 50 },
-    ]);
+//     const messages = await Message.aggregate([
+//       {
+//         $match: {
+//           $or: [
+//             { receiverId: receiverId, senderId: senderId },
+//             { receiverId: senderId, senderId: receiverId },
+//           ],
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "users",
+//           localField: "senderId",
+//           foreignField: "_id",
+//           as: "sender",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "users",
+//           localField: "receiverId",
+//           foreignField: "_id",
+//           as: "receiver",
+//         },
+//       },
+//       { $unwind: "$sender" },
+//       { $unwind: "$receiver" },
+//       {
+//         $project: {
+//           message: 1,
+//           createdAt: 1,
+//           sender: { _id: 1, firstName: 1, lastName: 1, email: 1, mobile: 1 },
+//           receiver: { _id: 1, firstName: 1, lastName: 1, email: 1, mobile: 1 },
+//         },
+//       },
+//       { $sort: { createdAt: -1 } },
+//       { $skip: page ? parseInt(page) - 1 * 100 : 0 },
+//       { $limit: 50 },
+//     ]);
 
-    return res.ok(messages.reverse());
-  } catch (error) {
-    return res.error(error);
-  }
-});
+//     return res.ok(messages.reverse());
+//   } catch (error) {
+//     return res.error(error);
+//   }
+// });
 
 router.route("/personal/chats").get(auth, async (req, res) => {
   try {

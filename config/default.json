@@ -20,5 +20,9 @@
       "issuer": "accounts.examplesoft.com",
       "audience": "yoursite.net"
     }
+  },
+  "imgur": {
+    "clientId": "1f3e35f19556430",
+    "clientSecret": "8e258a16e18b742da81dab212f78b17bb05570c4"
   }
 }

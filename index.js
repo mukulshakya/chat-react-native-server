@@ -39,6 +39,7 @@ app.get("/", async (req, res) => {
 // Routes
 app.use(require("./routes/user"));
 app.use(require("./routes/message"));
+app.use(require("./routes/post"));
 
 // Error handler
 app.use(async (error, req, res, next) => {
