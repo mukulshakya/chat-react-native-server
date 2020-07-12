@@ -24,6 +24,7 @@ const messageSchema = new Schema(
       ],
       trim: true,
     },
+    seen: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
