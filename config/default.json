@@ -2,7 +2,7 @@
   "db": {
     "url": {
       "local": "mongodb://localhost:27017/chat-react-native",
-      "production": "mongodb+srv://mukul:L0ciDVRPResAbYcx@cluster0-iidze.mongodb.net/chat-react-native?retryWrites=true&w=majority"
+      "production": "mongodb+srv://mukul:Cn2T2bTQ3X568BfN@cluster0-iidze.mongodb.net/chat-react-native?retryWrites=true&w=majority"
     },
     "options": {
       "keepAlive": 1000,
