@@ -5,7 +5,6 @@ const {
   Types: { ObjectId },
 } = require("mongoose");
 const User = require("../models/user");
-const Message = require("../models/message");
 const auth = require("../middleware/auth");
 const generateJwtToken = require("../util/generateJwtToken");
 const reqBodyValidator = require("../middleware/requestBodyValidator");
