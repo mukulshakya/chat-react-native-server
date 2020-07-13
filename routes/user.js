@@ -1,7 +1,11 @@
 const express = require("express");
 const router = new express.Router();
 const bcrypt = require("bcrypt");
+const {
+  Types: { ObjectId },
+} = require("mongoose");
 const User = require("../models/user");
+const Message = require("../models/message");
 const auth = require("../middleware/auth");
 const generateJwtToken = require("../util/generateJwtToken");
 const reqBodyValidator = require("../middleware/requestBodyValidator");
@@ -62,8 +66,89 @@ router.route("/profile").get(auth, async (req, res) => {
 
 router.route("/users").get(auth, async (req, res) => {
   try {
-    const users = await User.find({ _id: { $ne: req.user._id } });
-    res.success(users);
+    const { _id: userId } = req.user;
+    const andQuery = [
+      {
+        $or: [
+          { $eq: ["$senderId", "$$userId"] },
+          { $eq: ["$receiverId", "$$userId"] },
+        ],
+      },
+    ];
+
+    const users = await User.aggregate([
+      { $match: { _id: { $ne: ObjectId(userId) } } },
+      {
+        $lookup: {
+          from: "messages",
+          let: { userId: "$_id" },
+          pipeline: [
+            { $match: { $expr: { $and: andQuery } } },
+            { $sort: { createdAt: -1 } },
+            { $project: { message: 1, createdAt: 1 } },
+            {
+              $group: {
+                _id: null,
+                lastMessage: { $first: "$message" },
+                createdAt: { $first: "$createdAt" },
+              },
+            },
+          ],
+          as: "lastMessage",
+        },
+      },
+      {
+        $lookup: {
+          from: "messages",
+          let: { userId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $and: [{ $eq: ["$seen", false] }, ...andQuery] },
+              },
+            },
+            { $project: { message: 1 } },
+            { $group: { _id: null, count: { $sum: 1 } } },
+          ],
+          as: "unseenMsgCount",
+        },
+      },
+      { $unwind: { path: "$lastMessage", preserveNullAndEmptyArrays: true } },
+      {
+        $unwind: { path: "$unseenMsgCount", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $project: {
+          username: 1,
+          email: 1,
+          profileImg: 1,
+          lastMessage: {
+            $cond: {
+              if: { $ne: ["$lastMessage", null] },
+              then: "$lastMessage.lastMessage",
+              else: "",
+            },
+          },
+          lastMessageDate: {
+            $cond: {
+              if: { $ne: ["$lastMessage", null] },
+              then: "$lastMessage.createdAt",
+              else: null,
+            },
+          },
+          unseenMsgCount: {
+            $cond: {
+              if: { $ne: ["$unseenMsgCount", null] },
+              then: "$unseenMsgCount.count",
+              else: 0,
+            },
+          },
+        },
+      },
+      { $sort: { lastMessageDate: -1 } },
+    ]);
+
+    return res.success(users);
   } catch (e) {
     console.log(e);
     return res.error(e);
