@@ -66,18 +66,28 @@ router.route("/profile").get(auth, async (req, res) => {
 
 router.route("/users").get(auth, async (req, res) => {
   try {
-    const { _id: userId } = req.user;
+    const userId = ObjectId(req.user._id);
     const andQuery = [
       {
         $or: [
-          { $eq: ["$senderId", "$$userId"] },
-          { $eq: ["$receiverId", "$$userId"] },
+          {
+            $and: [
+              { $eq: ["$senderId", "$$userId"] },
+              { $eq: ["$receiverId", userId] },
+            ],
+          },
+          {
+            $and: [
+              { $eq: ["$senderId", userId] },
+              { $eq: ["$receiverId", "$$userId"] },
+            ],
+          },
         ],
       },
     ];
 
     const users = await User.aggregate([
-      { $match: { _id: { $ne: ObjectId(userId) } } },
+      { $match: { _id: { $ne: userId } } },
       {
         $lookup: {
           from: "messages",
