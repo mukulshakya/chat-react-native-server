@@ -35,20 +35,25 @@ module.exports = (server) => {
       io.emit("offline", { userId: key });
     });
 
-    socket.on("send_message", ({ message, receiverId }) => {
+    socket.on("send_message", async ({ message, receiverId }) => {
       const {
         senderId,
         sender: { username },
       } = socket;
+
+      const newMsg = await new Message({
+        senderId,
+        receiverId,
+        message,
+      }).save();
 
       socket.to(users[receiverId]).emit("receive_message", {
         username,
         message,
         senderId,
         receiverId,
+        msgData: newMsg,
       });
-
-      new Message({ senderId, receiverId, message }).save();
     });
   });
 };
