@@ -88,7 +88,7 @@ router
         ...query,
       }).countDocuments();
 
-      return res.success({ messages: messages.reverse(), unseenMsgCount });
+      return res.success({ messages: messages, unseenMsgCount });
     } catch (error) {
       return res.error(error);
     }
