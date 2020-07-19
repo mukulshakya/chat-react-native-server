@@ -42,7 +42,7 @@ router
 
       const query = { ...msgMatchQuery(req) };
       const userProjection = { _id: 1, username: 1, email: 1, profileImg: 1 };
-      
+
       const messages = await Message.aggregate([
         { $match: query },
         {
@@ -79,7 +79,7 @@ router
           },
         },
         { $sort: { createdAt: -1 } },
-        { $skip: page ? parseInt(page) - 1 * 50 : 0 },
+        { $skip: page ? (parseInt(page) - 1) * 50 : 0 },
         { $limit: 50 },
       ]);
 
