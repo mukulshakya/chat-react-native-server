@@ -66,24 +66,6 @@ router.route("/profile").get(auth, async (req, res) => {
 router.route("/users").get(auth, async (req, res) => {
   try {
     const userId = ObjectId(req.user._id);
-    const andQuery = [
-      {
-        $or: [
-          {
-            $and: [
-              { $eq: ["$senderId", "$$userId"] },
-              { $eq: ["$receiverId", userId] },
-            ],
-          },
-          {
-            $and: [
-              { $eq: ["$senderId", userId] },
-              { $eq: ["$receiverId", "$$userId"] },
-            ],
-          },
-        ],
-      },
-    ];
 
     const users = await User.aggregate([
       { $match: { _id: { $ne: userId } } },
@@ -92,7 +74,30 @@ router.route("/users").get(auth, async (req, res) => {
           from: "messages",
           let: { userId: "$_id" },
           pipeline: [
-            { $match: { $expr: { $and: andQuery } } },
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $or: [
+                        {
+                          $and: [
+                            { $eq: ["$senderId", "$$userId"] },
+                            { $eq: ["$receiverId", userId] },
+                          ],
+                        },
+                        {
+                          $and: [
+                            { $eq: ["$senderId", userId] },
+                            { $eq: ["$receiverId", "$$userId"] },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
             { $sort: { createdAt: -1 } },
             { $project: { message: 1, createdAt: 1 } },
             {
@@ -113,7 +118,13 @@ router.route("/users").get(auth, async (req, res) => {
           pipeline: [
             {
               $match: {
-                $expr: { $and: [{ $eq: ["$seen", false] }, ...andQuery] },
+                $expr: {
+                  $and: [
+                    { $eq: ["$seen", false] },
+                    { $eq: ["$senderId", "$$userId"] },
+                    { $eq: ["$receiverId", userId] },
+                  ],
+                },
               },
             },
             { $project: { message: 1 } },
